@@ -1,54 +1,65 @@
-import React, { useState } from 'react';
-import { Star, Trash2, Download, Clock, Zap, LogOut, AlertCircle } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Star, Trash2, Download, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { CreditsMeter } from './ui/CreditsMeter';
-
-// Mock data for demonstration
-const mockProjects = [
-  {
-    id: 1,
-    inputText: "The quick brown fox jumps over the lazy dog. This is a sample AI-generated text that needs to be humanized.",
-    outputText: "You know, that quick brown fox actually leaped right over the lazy dog. It's quite fascinating how this sample text, which was originally AI-generated, has been transformed to sound more natural.",
-    timestamp: "2024-03-20T10:30:00",
-    isFavorite: false
-  },
-  {
-    id: 2,
-    inputText: "Artificial Intelligence is transforming the way we work and live. It's becoming increasingly important in our daily lives.",
-    outputText: "It's really quite remarkable how AI is changing our world. You can see it everywhere - from how we work to how we live our daily lives. It's becoming something we can't imagine living without.",
-    timestamp: "2024-03-19T15:45:00",
-    isFavorite: true
-  }
-];
-
-interface CreditInfo {
-  used: number;
-  total: number;
-}
+import { supabase } from '../lib/supabase';
 
 export const Dashboard: React.FC = () => {
-  const { user, profile, signOut } = useAuth();
-  const [projects, setProjects] = useState(mockProjects);
-  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const [projects, setProjects] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const credits = {
-    used: profile?.credits_used || 0,
-    total: profile?.plan === 'Free' ? 10 : profile?.plan === 'Pro' ? 100 : 500
+  const fetchProjects = async () => {
+    if (!user) return;
+    setLoading(true);
+    setError(null);
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      setProjects(data || []);
+    } catch (err) {
+      setError('Failed to load projects.');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const toggleFavorite = (id: number) => {
-    setProjects(projects.map(project => 
-      project.id === id ? { ...project, isFavorite: !project.isFavorite } : project
-    ));
+  useEffect(() => {
+    fetchProjects();
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel('public:projects')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects', filter: `user_id=eq.${user.id}` },
+        () => {
+          fetchProjects();
+        }
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  const handleDelete = async (id: string) => {
+    try {
+      await supabase.from('projects').delete().eq('id', id);
+      setProjects((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      setError('Failed to delete project.');
+    }
   };
 
-  const deleteProject = (id: number) => {
-    setProjects(projects.filter(project => project.id !== id));
-  };
-
-  const downloadProject = (project: typeof mockProjects[0]) => {
-    const content = `Input: ${project.inputText}\n\nOutput: ${project.outputText}\n\nTimestamp: ${new Date(project.timestamp).toLocaleString()}`;
+  const handleDownload = (project: any) => {
+    const content = `Input: ${project.input_text}\n\nOutput: ${project.output_text}\n\nTimestamp: ${new Date(project.created_at).toLocaleString()}`;
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -60,40 +71,60 @@ export const Dashboard: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
-  };
-
-  const calculateProgress = () => {
-    return (credits.used / credits.total) * 100;
-  };
-
-  const getProgressColor = () => {
-    const progress = calculateProgress();
-    if (progress >= 90) return 'bg-red-500';
-    if (progress >= 70) return 'bg-yellow-500';
-    return 'bg-green-500';
+  const handleFavorite = async (id: string) => {
+    // Toggle favorite (add a 'favorite' field in your DB for real use)
+    setProjects((prev) => prev.map((p) => p.id === id ? { ...p, isFavorite: !p.isFavorite } : p));
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen bg-gray-50 pt-20 pb-0" style={{ marginBottom: 0, paddingBottom: 0 }}>
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Welcome, {profile?.name || user?.email}</h1>
-            <div className="mb-6">
-              <CreditsMeter />
-            </div>
-            <div className="space-y-4">
-              <div className="p-4 bg-gray-50 rounded-lg">
-                <h2 className="text-lg font-semibold text-gray-900 mb-2">Account Information</h2>
-                <p className="text-gray-600">Email: {user?.email}</p>
-                {profile?.name && <p className="text-gray-600">Name: {profile.name}</p>}
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-2xl font-bold text-gray-900 mb-6">Your Past Projects</h2>
+          {loading ? (
+            <div className="text-center py-8">Loading...</div>
+          ) : error ? (
+            <div className="text-center text-red-500 py-8">{error}</div>
+          ) : projects.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">No projects yet.</div>
+          ) : (
+            <div className="max-h-96 overflow-y-auto pr-2 mb-0" style={{ marginBottom: 0, paddingBottom: 0 }}>
+              <div className="grid gap-6">
+                {projects.map((project) => (
+                  <div key={project.id} className="bg-white rounded-lg shadow p-6 flex flex-col md:flex-row md:items-center md:justify-between">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center mb-2 text-gray-500 text-xs">
+                        <Clock className="w-4 h-4 mr-1" />
+                        {new Date(project.created_at).toLocaleString()}
+                      </div>
+                      <div className="mb-2">
+                        <span className="font-semibold text-gray-700">Input:</span>
+                        <span className="ml-2 text-gray-600 line-clamp-2">{project.input_text.slice(0, 100)}{project.input_text.length > 100 ? '...' : ''}</span>
+                      </div>
+                      <div>
+                        <span className="font-semibold text-gray-700">Output:</span>
+                        <span className="ml-2 text-gray-600 line-clamp-2">{project.output_text.slice(0, 100)}{project.output_text.length > 100 ? '...' : ''}</span>
+                      </div>
+                    </div>
+                    <div className="flex flex-row md:flex-col gap-2 mt-4 md:mt-0 md:ml-6">
+                      <button onClick={() => handleFavorite(project.id)} className={`p-2 rounded-full border ${project.isFavorite ? 'bg-yellow-100 border-yellow-400' : 'bg-gray-100 border-gray-300'} hover:bg-yellow-200`} title="Favorite">
+                        <Star className={`w-5 h-5 ${project.isFavorite ? 'text-yellow-500 fill-yellow-400' : 'text-gray-400'}`} />
+                      </button>
+                      <button onClick={() => handleDownload(project)} className="p-2 rounded-full bg-gray-100 border border-gray-300 hover:bg-blue-100" title="Download">
+                        <Download className="w-5 h-5 text-blue-500" />
+                      </button>
+                      <button onClick={() => handleDelete(project.id)} className="p-2 rounded-full bg-gray-100 border border-gray-300 hover:bg-red-100" title="Delete">
+                        <Trash2 className="w-5 h-5 text-red-500" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
+      <div style={{ margin: 0, padding: 0, height: 0 }} />
     </div>
   );
-}; 
+};

@@ -46,6 +46,7 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 // Home component with no extra login/signup buttons
 const Home = () => {
+  const { user } = useAuth();
   const location = useLocation();
   React.useEffect(() => {
     if (location.state && location.state.scrollToContact) {
@@ -60,6 +61,7 @@ const Home = () => {
   return (
     <>
       <Hero />
+      {user && <Dashboard />}
       <Benefits />
       <HowItWorks />
       <Testimonials />
