@@ -34,12 +34,12 @@ A modern web application that transforms AI-generated content into natural human
 ```bash
 git clone https://github.com/caninehawk/AI-Humanizer.git
 cd AI-Humanizer
-
+```
 ### 2. Install Dependencies
 
 ```bash
 npm install
-
+```
 ### 3. Start Development Server
 
 ```bash
