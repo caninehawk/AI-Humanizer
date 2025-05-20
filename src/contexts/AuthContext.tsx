@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
 import { supabase } from '../lib/supabase';
+import { useNavigate } from 'react-router-dom';
 
 interface Profile {
   id: string;
   email: string;
   name: string;
   credits: number;
+  credits_used: number;
   plan: string;
   created_at: string;
 }
@@ -16,6 +18,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   signOut: () => Promise<void>;
+  updateProfile: (profile: Profile) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -24,6 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     // Check active sessions and sets the user
@@ -64,17 +68,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateProfile = async (updatedProfile: Profile) => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update(updatedProfile)
+        .eq('id', updatedProfile.id);
+
+      if (error) throw error;
+      setProfile({ ...updatedProfile });
+    } catch (error) {
+      console.error('Error updating profile:', error);
+      throw error;
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
-      window.location.href = '/login';
+      setUser(null);
+      setProfile(null);
+      navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signOut, updateProfile }}>
       {children}
     </AuthContext.Provider>
   );
