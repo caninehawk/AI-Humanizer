@@ -206,10 +206,12 @@ export const Pricing: React.FC = () => {
                       className="px-6 py-2 rounded-full bg-green-600 text-white font-semibold hover:bg-green-700 transition-colors"
                       onClick={() => handleSwitchPlan(plan.value)}
                     >
-                      Switch to {plan.label}
+                      {`Upgrade to ${plan.label}`}
                     </button>
                   )
-                ) : null}
+                ) : (
+                  <span className="px-6 py-2 rounded-full bg-gray-300 text-gray-600 font-semibold">Sign in to upgrade</span>
+                )}
               </div>
             );
           })}
