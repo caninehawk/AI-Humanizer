@@ -2,6 +2,10 @@
 
 A modern web application that transforms AI-generated content into natural human-like writing using the [Undetectable.AI](https://humanize.undetectable.ai/) Humanization API. Built with Vite, React, TypeScript, Supabase, and Tailwind CSS.
 
+## Live Demo
+
+You can use this app here: https://ai-humanizer-omega.vercel.app/
+
 <!-- Screenshots -->
 <p align="center">
   <img src="images/Screenshot%202025-05-19%20194539.png" alt="Dashboard Screenshot" width="600" />
@@ -25,6 +29,23 @@ A modern web application that transforms AI-generated content into natural human
 
 ---
 
+## 📘 Getting Started
+
+1. **Create an Account**  
+   Click the **Sign In** button or try the **Humanize** button — you’ll be prompted to sign up.
+
+2. **Verify Your Email**  
+   Check your inbox and click the verification link to activate your account.
+
+3. **Sign In and Access the App**  
+   After verifying, log in to access your dashboard, track credits, and unlock all features.
+
+4. **Humanize Your AI Text**  
+   Paste your AI-generated content and click **Humanize** to instantly convert it into natural, human-like writing.
+
+> 💡 Free plan includes 10 credits. Upgrade anytime for more!
+
+
 ## 📦 Tech Stack
 
 - **Frontend**: Vite, React, TypeScript
@@ -34,7 +55,7 @@ A modern web application that transforms AI-generated content into natural human
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Installation
 
 ### 1. Clone the repository
 
