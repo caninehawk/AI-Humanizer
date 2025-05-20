@@ -24,14 +24,6 @@ export const Hero: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const optimisticIncrementCredits = () => {
-    if (!profile) return;
-    updateProfile({
-      ...profile,
-      credits_used: (profile.credits_used || 0) + 1,
-    });
-  };
-
   const updateUserCredits = async () => {
     if (!user) return;
 
@@ -47,6 +39,7 @@ export const Hero: React.FC = () => {
         return;
       }
 
+      // Fetch the latest profile from Supabase and update context
       const { data: updatedProfile, error: fetchError } = await supabase
         .from('profiles')
         .select('*')
@@ -58,7 +51,7 @@ export const Hero: React.FC = () => {
         return;
       }
 
-      updateProfile(updatedProfile);
+      await updateProfile(updatedProfile); // This will now fetch and update context
       setRefreshMeter((prev) => !prev); // 🔄 Force CreditsMeter re-render
     } catch (error) {
       console.error('Unhandled error updating credits:', error);
@@ -83,6 +76,21 @@ export const Hero: React.FC = () => {
       if (data.output) {
         setOutputText(data.output);
         setIsProcessing(false);
+
+        // Insert project row in Supabase
+        if (user && inputText) {
+          try {
+            await supabase.from('projects').insert({
+              user_id: user.id,
+              input_text: inputText,
+              output_text: data.output,
+              created_at: new Date().toISOString(),
+            });
+          } catch (err) {
+            console.error('Error inserting project:', err);
+          }
+        }
+
         return true;
       }
 
@@ -93,7 +101,7 @@ export const Hero: React.FC = () => {
       setIsProcessing(false);
       return true;
     }
-  }, []);
+  }, [user, inputText]);
 
   const handleHumanize = async () => {
     setError(null);
@@ -117,7 +125,6 @@ export const Hero: React.FC = () => {
     }
 
     setIsProcessing(true);
-    optimisticIncrementCredits();
 
     try {
       const submitResponse = await fetch('https://humanize.undetectable.ai/submit', {
@@ -149,7 +156,7 @@ export const Hero: React.FC = () => {
         const isComplete = await pollDocumentStatus(id);
         if (isComplete) {
           clearInterval(pollInterval);
-          await updateUserCredits();
+          await updateUserCredits(); // Only update credits after successful completion
         }
       }, 5000);
 
