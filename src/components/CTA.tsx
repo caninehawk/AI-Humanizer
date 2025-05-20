@@ -20,7 +20,7 @@ export const CTA: React.FC = () => {
               Get Started Free
             </a>
             <a 
-              href="pricing" 
+              href="/pricing" 
               className="px-8 py-3 rounded-full bg-transparent border-2 border-white text-white font-medium hover:bg-white/10 transition-colors"
             >
               View Pricing

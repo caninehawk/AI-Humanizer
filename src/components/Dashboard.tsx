@@ -34,13 +34,15 @@ export const Dashboard: React.FC = () => {
 
   useEffect(() => {
     if (!user) return;
+    // Subscribe to realtime changes for the user's projects
     const channel = supabase
       .channel('public:projects')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'projects', filter: `user_id=eq.${user.id}` },
         () => {
-          fetchProjects();
+          // Use setTimeout to ensure the DB transaction is committed before fetching
+          setTimeout(() => fetchProjects(), 300);
         }
       )
       .subscribe();
