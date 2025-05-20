@@ -73,4 +73,5 @@ npm install
 
 ```bash
 npm run dev
-
+```
+Now you can use the app
