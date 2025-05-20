@@ -32,10 +32,7 @@ export const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitch }) => {
         password: formData.password,
         options: {
           data: { name: formData.name },
-          emailRedirectTo:
-            typeof window !== 'undefined' && window.location.hostname !== 'localhost'
-              ? 'https://ai-humanizer-omega.vercel.app/'
-              : 'http://localhost:5173/',
+          emailRedirectTo: 'https://ai-humanizer-omega.vercel.app/',
         },
       });
       if (authError) throw authError;
