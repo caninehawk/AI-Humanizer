@@ -36,6 +36,7 @@ You can use this app here: https://ai-humanizer-omega.vercel.app/
 
 2. **Verify Your Email**  
    Check your inbox and click the verification link to activate your account.
+   **Note:** You may be redirected to a broken link (Issue with production environment) but your email is verified, you can still login with the email address
 
 3. **Sign In and Access the App**  
    After verifying, log in to access your dashboard, track credits, and unlock all features.
