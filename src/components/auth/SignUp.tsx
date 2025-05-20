@@ -32,6 +32,10 @@ export const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitch }) => {
         password: formData.password,
         options: {
           data: { name: formData.name },
+          emailRedirectTo:
+            window.location.hostname === 'localhost'
+              ? 'http://localhost:5173/'
+              : 'https://ai-humanizer-omega.vercel.app/',
         },
       });
       if (authError) throw authError;
@@ -107,4 +111,4 @@ export const SignUp: React.FC<SignUpProps> = ({ onSuccess, onSwitch }) => {
       )}
     </div>
   );
-}; 
+};
