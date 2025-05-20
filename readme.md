@@ -2,7 +2,14 @@
 
 A modern web application that transforms AI-generated content into natural human-like writing using the [Undetectable.AI](https://humanize.undetectable.ai/) Humanization API. Built with Vite, React, TypeScript, Supabase, and Tailwind CSS.
 
-![AI Humanizer Screenshot](https://your-image-url.com/preview.png) <!-- Replace with your actual preview image -->
+<!-- Screenshots -->
+<p align="center">
+  <img src="images/Screenshot%202025-05-19%20194539.png" alt="Dashboard Screenshot" width="600" />
+  <img src="images/Screenshot%202025-05-19%20194625.png" alt="Humanize Form Screenshot" width="600" />
+  <img src="images/Screenshot%202025-05-19%20194651.png" alt="Credits Meter Screenshot" width="600" />
+  <img src="images/Screenshot%202025-05-19%20194714.png" alt="Pricing Screenshot" width="600" />
+  <img src="images/Screenshot%202025-05-19%20194733.png" alt="Contact Screenshot" width="600" />
+</p>
 
 ---
 
@@ -34,12 +41,12 @@ A modern web application that transforms AI-generated content into natural human
 ```bash
 git clone https://github.com/caninehawk/AI-Humanizer.git
 cd AI-Humanizer
-
+```
 ### 2. Install Dependencies
 
 ```bash
 npm install
-
+```
 ### 3. Start Development Server
 
 ```bash
