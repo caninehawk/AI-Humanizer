@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 
 export const CTA: React.FC = () => {
   return (
@@ -19,12 +20,12 @@ export const CTA: React.FC = () => {
             >
               Get Started Free
             </a>
-            <a 
-              href="/pricing" 
+            <Link 
+              to="/pricing" 
               className="px-8 py-3 rounded-full bg-transparent border-2 border-white text-white font-medium hover:bg-white/10 transition-colors"
             >
               View Pricing
-            </a>
+            </Link>
           </div>
           
           <p className="mt-6 text-sm opacity-80">
