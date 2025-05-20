@@ -29,7 +29,7 @@ You can use this app here: https://ai-humanizer-omega.vercel.app/
 
 ---
 
-## 🛠️ Getting Started
+## 📘 Getting Started
 
 1. **Create an Account**  
    Click the **Sign In** button or try the **Humanize** button — you’ll be prompted to sign up.
@@ -55,7 +55,7 @@ You can use this app here: https://ai-humanizer-omega.vercel.app/
 
 ---
 
-## 🛠️ Getting Started
+## 🛠️ Installation
 
 ### 1. Clone the repository
 
